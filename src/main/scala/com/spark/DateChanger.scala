@@ -11,15 +11,13 @@ object DateChanger {
   val url = "jdbc:postgresql://localhost/wiki?user=postgres&password=postgres"
 
   def main(args: Array[String]){
-    val conf = new SparkConf().setAppName("Max Price").setMaster("local")
-    val sc = new SparkContext(conf)
 
     // Load postgresql jdbc driver
     Class.forName("org.postgresql.Driver")
 
     /*no need to  explicating creating SparkConf, SparkContext or SQLContext, as they’re encapsulated within the SparkSession.*/
+    val sparkSession = SparkSession.builder().appName("SparkSessionWiki").getOrCreate()
 
-    val sparkSession = SparkSession.builder().getOrCreate()
 
     val customSchema = StructType(Array(
       StructField("RetailStoreID", StringType, nullable = true),
@@ -29,6 +27,7 @@ object DateChanger {
       StructField("BusinessDayDate", StringType, nullable = true)))
 
 
+      /* Spark automatically reads the schema from the database table and maps its types back to Spark SQL types. */
     val dataFrame = sparkSession.read
       .format("com.databricks.spark.xml")
       .option("rowTag", "Transaction")
